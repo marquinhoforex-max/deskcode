@@ -8,10 +8,6 @@ on:
     paths:
       - ".github/workflows/deskcode-windows.yml"
       - "custom/deskcode/**"
-      - "script/build-deskcode.ps1"
-      - "packages/opencode/**"
-      - "packages/app/**"
-      - "bun.lock"
 
 permissions:
   contents: read
@@ -19,35 +15,34 @@ permissions:
 jobs:
   build:
     runs-on: windows-latest
-    timeout-minutes: 45
+    timeout-minutes: 15
     steps:
-      - name: Checkout
+      - name: Checkout DeskCode files
         uses: actions/checkout@v4
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
-
-      - name: Install dependencies
-        run: bun install --frozen-lockfile
-
-      - name: Build native Windows binary
-        working-directory: packages/opencode
-        run: bun run script/build.ts --single --baseline
+      - name: Download official baseline binary
+        shell: pwsh
+        run: |
+          $release = Invoke-RestMethod "https://api.github.com/repos/anomalyco/opencode/releases/latest"
+          $asset = $release.assets | Where-Object { $_.name -eq "opencode-windows-x64-baseline.zip" }
+          if (-not $asset) { throw "Official Windows x64 baseline asset was not found." }
+          Invoke-WebRequest $asset.browser_download_url -OutFile "opencode-baseline.zip"
+          Expand-Archive "opencode-baseline.zip" -DestinationPath "opencode-baseline"
+          $binary = Get-ChildItem "opencode-baseline" -Filter "opencode.exe" -Recurse | Select-Object -First 1
+          if (-not $binary) { throw "opencode.exe was not found in the official archive." }
+          New-Item -ItemType Directory -Force -Path "release/DeskCode" | Out-Null
+          Copy-Item $binary.FullName "release/DeskCode/deskcode.exe"
 
       - name: Assemble DeskCode package
         shell: pwsh
         run: |
-          $source = "packages/opencode/dist/opencode-windows-x64-baseline/bin/opencode.exe"
-          if (-not (Test-Path $source)) { throw "Binary not found: $source" }
-          New-Item -ItemType Directory -Force -Path "release/DeskCode" | Out-Null
-          Copy-Item $source "release/DeskCode/deskcode.exe"
           Copy-Item "custom/deskcode/opencode.jsonc" "release/DeskCode/opencode.jsonc"
           Copy-Item "custom/deskcode/.env.example" "release/DeskCode/.env.example"
           Copy-Item "custom/deskcode/deskcode.ps1" "release/DeskCode/deskcode.ps1"
           Copy-Item "custom/deskcode/DeskCode.cmd" "release/DeskCode/DeskCode.cmd"
           Copy-Item "custom/deskcode/README.pt-BR.md" "release/DeskCode/LEIA-ME.md"
+          & "release/DeskCode/deskcode.exe" --version
+          if ($LASTEXITCODE -ne 0) { throw "Baseline binary smoke test failed." }
 
       - name: Upload DeskCode
         uses: actions/upload-artifact@v4
