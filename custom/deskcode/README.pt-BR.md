@@ -4,7 +4,7 @@ Esta personalização usa a base atual do OpenCode e configura o Google Gemini c
 
 ## O que está configurado
 
-- Modelo principal e modelo leve: `google/gemini-2.5-flash`.
+- Modelo principal e modelo leve: `google/gemini-3.7-flash`.
 - Gemini permanece como padrão, mas os demais provedores não são bloqueados.
 - Compactação automática antes do estouro de contexto.
 - Poda de saídas antigas de ferramentas.
