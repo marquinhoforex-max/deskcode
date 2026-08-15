@@ -31,6 +31,18 @@ A disponibilidade gratuita muda ao longo do tempo e pode depender da conta, regi
 
 O Gemini continua sendo o modelo inicial e requer `GOOGLE_GENERATIVE_AI_API_KEY`. Use o seletor de modelos do aplicativo para trocar para outra opção disponível.
 
+## Baixar o pacote pronto
+
+O workflow `DeskCode Windows` compila o aplicativo em um runner Windows e publica o artefato `DeskCode-Windows-x64`. Na página do GitHub, abra **Actions**, selecione o workflow e baixe o ZIP na seção **Artifacts** da execução concluída.
+
+Extraia o ZIP e execute:
+
+```powershell
+.\deskcode.ps1
+```
+
+Na primeira execução, o launcher solicita uma chave Gemini nova de forma mascarada e a grava somente no arquivo `.env` ao lado do executável. O arquivo não é enviado ao GitHub.
+
 ## Build no Windows
 
 Instale Git e Bun, clone seu fork e execute:
