@@ -5,7 +5,7 @@ Esta personalização usa a base atual do OpenCode e configura o Google Gemini c
 ## O que está configurado
 
 - Modelo principal e modelo leve: `google/gemini-2.5-flash`.
-- Somente o provedor Google é carregado automaticamente.
+- Gemini permanece como padrão, mas os demais provedores não são bloqueados.
 - Compactação automática antes do estouro de contexto.
 - Poda de saídas antigas de ferramentas.
 - Reserva de 20.000 tokens para permitir que a compactação termine.
@@ -22,6 +22,14 @@ O repositório já ignora arquivos `.env`. O exemplo usa a variável reconhecida
 ```text
 GOOGLE_GENERATIVE_AI_API_KEY=coloque_sua_nova_chave_aqui
 ```
+
+## Modelos gratuitos e outros provedores
+
+O DeskCode não restringe a lista de provedores. Sem autenticação adicional, o OpenCode pode exibir modelos públicos gratuitos disponibilizados pelo serviço OpenCode. Ao conectar outras contas ou definir as respectivas chaves, os provedores compatíveis também ficam disponíveis no seletor de modelos.
+
+A disponibilidade gratuita muda ao longo do tempo e pode depender da conta, região, cota e termos de cada provedor. Confirme no seletor e na página oficial de preços antes de usar. Habilitar um provedor não transforma modelos pagos em gratuitos e não impede cobranças em contas que já tenham faturamento ativo.
+
+O Gemini continua sendo o modelo inicial e requer `GOOGLE_GENERATIVE_AI_API_KEY`. Use o seletor de modelos do aplicativo para trocar para outra opção disponível.
 
 ## Build no Windows
 
