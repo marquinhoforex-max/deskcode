@@ -1,0 +1,51 @@
+name: DeskCode Windows
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - deskcode-gemini
+    paths:
+      - ".github/workflows/deskcode-windows.yml"
+      - "custom/deskcode/**"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout DeskCode files
+        uses: actions/checkout@v4
+
+      - name: Download official baseline binary
+        shell: pwsh
+        run: |
+          $url = "https://github.com/anomalyco/opencode/releases/download/v1.18.18/opencode-windows-x64-baseline.zip"
+          Invoke-WebRequest $url -OutFile "opencode-baseline.zip"
+          Expand-Archive "opencode-baseline.zip" -DestinationPath "opencode-baseline"
+          $binary = Get-ChildItem "opencode-baseline" -Filter "opencode.exe" -Recurse | Select-Object -First 1
+          if (-not $binary) { throw "opencode.exe was not found in the official archive." }
+          New-Item -ItemType Directory -Force -Path "release/DeskCode" | Out-Null
+          Copy-Item $binary.FullName "release/DeskCode/deskcode.exe"
+
+      - name: Assemble DeskCode package
+        shell: pwsh
+        run: |
+          Copy-Item "custom/deskcode/opencode.jsonc" "release/DeskCode/opencode.jsonc"
+          Copy-Item "custom/deskcode/.env.example" "release/DeskCode/.env.example"
+          Copy-Item "custom/deskcode/deskcode.ps1" "release/DeskCode/deskcode.ps1"
+          Copy-Item "custom/deskcode/DeskCode.cmd" "release/DeskCode/DeskCode.cmd"
+          Copy-Item "custom/deskcode/README.pt-BR.md" "release/DeskCode/LEIA-ME.md"
+          & "release/DeskCode/deskcode.exe" --version
+          if ($LASTEXITCODE -ne 0) { throw "Baseline binary smoke test failed." }
+
+      - name: Upload DeskCode
+        uses: actions/upload-artifact@v4
+        with:
+          name: DeskCode-Windows-x64-Baseline
+          path: release/DeskCode
+          if-no-files-found: error
+          retention-days: 30

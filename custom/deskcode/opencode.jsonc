@@ -1,0 +1,12 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "google/gemini-3.7-flash",
+  "small_model": "google/gemini-3.7-flash",
+  "compaction": {
+    "auto": true,
+    "prune": true,
+    "reserved": 20000,
+    "preserve_recent_tokens": 15000,
+    "tail_turns": 50
+  }
+}
